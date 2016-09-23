@@ -1,0 +1,13 @@
+{
+  "name": "dotenv",
+  "license": "MIT",
+  "tags": [],
+  "classPath": "src",
+  "contributors": [
+    "benmerckx"
+  ],
+  "releasenote": "initial release",
+  "version": "0.0.0",
+  "url": "https://github.com/benmerckx/dotenv/",
+  "dependencies": {}
+}
