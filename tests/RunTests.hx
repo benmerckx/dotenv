@@ -45,6 +45,7 @@ class RunTests extends buddy.SingleSuite {
 			it('should have parsed multiline string values', {
 				EnvLoad.MULTILINE.should.be("multiline\nencoded");
 			});
+			
 			it('should have set the default value', {
 				EnvLoad.DEFAULTVAL.should.be(3306);
 			});
