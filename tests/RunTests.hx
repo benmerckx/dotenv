@@ -10,7 +10,7 @@ class EnvLoad {
 	public static var INTERPOLATE: String;
 	public static var MULTILINE: String;
 	
-	static function __init__() Env.init();
+	static function __init__() Env.init({overload: true});
 }
 
 @colorize
