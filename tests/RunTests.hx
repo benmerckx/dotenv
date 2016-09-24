@@ -9,6 +9,9 @@ class EnvLoad {
 	public static var BOOLVAL: Bool;
 	public static var INTERPOLATE: String;
 	public static var MULTILINE: String;
+	public static var OPTIONAL: Null<String>;
+	@:default(3306)
+	public static var DEFAULTVAL: Int;
 	
 	static function __init__() Env.init({overload: true});
 }
@@ -36,6 +39,13 @@ class RunTests extends buddy.SingleSuite {
 			
 			it('should have parsed multiline string values', {
 				EnvLoad.MULTILINE.should.be("multiline\nencoded");
+			});
+			
+			it('should have parsed multiline string values', {
+				EnvLoad.MULTILINE.should.be("multiline\nencoded");
+			});
+			it('should have set the default value', {
+				EnvLoad.DEFAULTVAL.should.be(3306);
 			});
 		});
 	}
