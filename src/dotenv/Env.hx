@@ -12,9 +12,7 @@ typedef EnvOptions = {
 	?path: String
 }
 
-class Env implements Dynamic {
-	
-	static var initializedPos: Position = null;
+class Env {
 		
 	macro public static function init(?options: EnvOptions) {
 		var local: ClassType = Context.getLocalClass().get();
