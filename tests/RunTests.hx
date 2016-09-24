@@ -20,6 +20,7 @@ class EnvLoad {
 class RunTests extends buddy.SingleSuite {
 
 	public function new() {
+		#if php untyped __call__('ini_set', 'xdebug.max_nesting_level', 10000); #end
 		describe('dotenv', {
 			it('should have parsed string values', {
 				EnvLoad.SIMPLE.should.be('VALUE');
