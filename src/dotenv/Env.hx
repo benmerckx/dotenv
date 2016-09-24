@@ -1,9 +1,9 @@
 package dotenv;
 
+import haxe.ds.StringMap;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
-import haxe.macro.ExprTools;
 
 using StringTools;
 
@@ -12,51 +12,46 @@ typedef EnvOptions = {
 	?path: String
 }
 
-@:forward
-abstract EnvType(Map<String, Type>) from Map<String, Type> {
-	
-	inline function new()
-		this = new Map();
-		
-	static inline function exprToType(expr: Expr): Type {
-		var ident = ExprTools.toString(expr);
-		return 
-			try Context.follow(Context.getType(ident))
-			catch (e: Dynamic) 
-				throw Context.warning('Type not found: '+ident, expr.pos);
-	}
-	
-	@:from inline static function fromExpr(expr: Expr): EnvType
-		return switch expr.expr {
-			case EObjectDecl(fields): [
-				for (field in fields)
-					field.field => exprToType(field.expr)
-			];
-			default:
-				switch exprToType(expr) {
-					case TAnonymous(_.get() => obj): [
-						for (field in obj.fields)
-							field.name => field.type
-					];
-					default: 
-						throw Context.warning('Anonymous type expected', expr.pos);
-				}
-		}
-	
-}
-
 class Env implements Dynamic {
 	
 	static var initializedPos: Position = null;
 		
-	macro public static function init(typeExpr: Expr, ?options: EnvOptions) {
-		if (initializedPos != null)
-			Context.warning('Env was already initialized here: '+initializedPos, typeExpr.pos);
+	macro public static function init(?options: EnvOptions) {
+		var local: ClassType = Context.getLocalClass().get();
+		var assignments: Array<Expr> = [];
 		
-		initializedPos = typeExpr.pos;
-		
-		var type: EnvType = typeExpr;
-		
+		for (field in local.statics.get())
+			switch field.kind {
+				case FVar(read, write):
+					var name = field.name, 
+						wrap: Expr -> Expr,
+						nameStr = macro $v{name};
+					var wrap: Expr -> Expr = switch field.type {
+						case TAbstract(_.get() => abstr, []) if (abstr.name == 'Int'):
+							function(e)
+								return macro Std.parseInt($e);
+						case TAbstract(_.get() => abstr, []) if (abstr.name == 'Float'):
+							function(e)
+								return macro Std.parseFloat($e);
+						case TAbstract(_.get() => abstr, []) if (abstr.name == 'Bool'):
+							function(e)
+								return macro $e == 'true';
+						default:
+							function(e)
+								return e;
+					}
+					assignments.push(macro @:pos(field.pos) {
+						var t = Sys.getEnv($nameStr);
+						if (t != null)
+							$i{name} = ${wrap(macro t)};
+						else if (parsed.exists($v{name}))
+							$i{name} = ${wrap(macro parsed.get($nameStr))};
+						else
+							throw 'Undefined environment variable: '+$nameStr;
+					});
+				default:
+			}
+			
 		if (options == null) 
 			options = {};
 		if (options.path == null)
@@ -64,19 +59,21 @@ class Env implements Dynamic {
 		if (options.overload == null)
 			options.overload = false;
 		
-		return macro @:pos(typeExpr.pos) {
-			var options = $v{options};
-			dotenv.Env.parse(options,
-				#if nodejs 
-				js.node.Fs.readFileSync(options.path, {encoding: 'utf-8'})
-				#else
-				sys.io.File.getContent(options.path)
-				#end
-			);
+		return macro {
+			var options = $v{options},
+				parsed = dotenv.Env.parse(options,
+					#if nodejs 
+					js.node.Fs.readFileSync(options.path, {encoding: 'utf-8'})
+					#else
+					sys.io.File.getContent(options.path)
+					#end
+				);
+			$b{assignments};
 		}
 	}
 	
-	public static function parse(options: EnvOptions, content: String) {
+	public static function parse(options: EnvOptions, content: String): Map<String, String> {
+		var result = new StringMap();
 		var matcher = ~/^\s*([\w\.\-]+)\s*=\s*(.*)?\s*$/;
 		for (line in content.split('\n')) {
 			if (matcher.match(line)) {
@@ -90,9 +87,10 @@ class Env implements Dynamic {
 					value = value.replace('\\n', '\n');
 					value = value.substr(1, value.length - 2);
 				}
-				Sys.putEnv(key, value);
+				result.set(key, value);
 			}
 		}
+		return result;
 	}
 	
 }
