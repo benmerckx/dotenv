@@ -50,7 +50,7 @@ class Env {
 						info = unwrapType(field.type),
 						wrap = info.wrap,
 						nameStr = macro $v{name},
-						final = 
+						finale = 
 							if (info.optional)
 								null
 							else if (field.meta.has(':default')) {
@@ -70,7 +70,7 @@ class Env {
 							else if (t != null)
 								$i{name} = ${wrap(macro t)}
 							else
-								$final;
+								$finale;
 						});
 					else
 						assignments.push(macro @:pos(field.pos) {
@@ -80,7 +80,7 @@ class Env {
 							else if (parsed.exists($v{name}))
 								$i{name} = ${wrap(macro parsed.get($nameStr))}
 							else
-								$final;
+								$finale;
 						});
 				default:
 			}
