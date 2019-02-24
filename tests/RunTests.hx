@@ -13,7 +13,7 @@ class EnvLoad {
 	@:default(3306)
 	public static var DEFAULTVAL: Int;
 	
-	static function __init__() Env.init({overload: true});
+	static function __init__() Env.init({overloaded: true});
 }
 
 @colorize

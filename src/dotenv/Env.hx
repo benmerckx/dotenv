@@ -9,7 +9,7 @@ using StringTools;
 using haxe.macro.Type.MetaAccess;
 
 typedef EnvOptions = {
-	?overload: Bool,
+	?overloaded: Bool,
 	?path: String,
 	?throws: Bool
 }
@@ -38,8 +38,8 @@ class Env {
 			options = {};
 		if (options.path == null)
 			options.path = '.env';
-		if (options.overload == null)
-			options.overload = false;
+		if (options.overloaded == null)
+			options.overloaded = false;
 		if (options.throws == null)
 			options.throws = true;
 		
@@ -62,7 +62,7 @@ class Env {
 								: null;
 							}
 						
-					if (options.overload)
+					if (options.overloaded)
 						assignments.push(macro @:pos(field.pos) {
 							var t = Sys.getEnv($nameStr);
 							if (parsed.exists($v{name}))
@@ -120,7 +120,7 @@ class Env {
 			if (matcher.match(line)) {
 				var key = matcher.matched(1).trim(),
 					value = matcher.matched(2);
-				if (!options.overload && Sys.getEnv(key) != null) 
+				if (!options.overloaded && Sys.getEnv(key) != null) 
 					continue;
 				value = value == null ? '' : value;
 				value = value.trim();

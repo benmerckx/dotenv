@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/benmerckx/dotenv.svg?branch=master)](https://travis-ci.org/benmerckx/dotenv)
 
-Loads environment variables into class' statics. Variables will be loaded from a '.env' file, if one exists. Any existing environment variables will not be overwritten (unless specified by the `overload` option).
+Loads environment variables into class' statics. Variables will be loaded from a '.env' file, if one exists. Any existing environment variables will not be overwritten (unless specified by the `overloaded` option).
 
 ```haxe
 class DatabaseConfig {
@@ -64,7 +64,7 @@ Init takes these options:
 
 ```haxe
 typedef EnvOptions = {
-	?overload: Bool, // Overwrite existing environment variables by the .env file
+	?overloaded: Bool, // Overwrite existing environment variables by the .env file
 	?path: String,   // Specify a different path for loading the file
 	?throws: Bool    // Defaults to true, throws if a variable is missing
 }
