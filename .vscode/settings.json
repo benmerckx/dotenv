@@ -1,0 +1,5 @@
+{
+  "haxe.configurations": [
+    ["tests.hxml", "--interp"]
+  ]
+}

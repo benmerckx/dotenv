@@ -1,3 +1,5 @@
 -lib buddy
+-lib tink_stringly
+-cp src
 -cp tests
 -main RunTests
